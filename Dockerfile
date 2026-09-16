@@ -13,9 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Build RAG policy index on container build
+# Build RAG policy index
 RUN python -m rag.indexer
 
-EXPOSE 8000 8501
-
-CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port 8000 & streamlit run frontend/app.py --server.port 8501 --server.address 0.0.0.0"]
+# Render provides the PORT environment variable
+CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
