@@ -28,8 +28,7 @@ class PolicyIndexer:
         self.chunks = chunker.chunk_policy()
         print(f"Generated {len(self.chunks)} hierarchical policy chunks.")
         
-        # Populate Chroma vector store & BM25 sparse index
-        self.vector_store.add_chunks(self.chunks)
+        #  Lightweight retrieval: BM25 only
         self.bm25.index_chunks(self.chunks)
         
         self.hybrid = HybridRetriever(self.vector_store, self.bm25)
