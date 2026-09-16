@@ -1,0 +1,155 @@
+[
+  {
+    "case_id": "SYNTH-001",
+    "policy_id": "USGIC-CSC-2017-2018",
+    "policy_start_date": "2025-06-01",
+    "claim_date": "2026-04-10",
+    "sum_insured_inr": 500000,
+    "continuous_coverage_months": 10,
+    "prior_insurer_continuous_years": 0,
+    "patient": { "age": 58 },
+    "hospital": { "name": "Apex Orthopedic Centre", "network_provider": true },
+    "treatment": {
+      "type": "inpatient",
+      "admission_hours": 120,
+      "diagnosis": "Osteoarthritis knee",
+      "procedure": "Total Knee Replacement",
+      "pre_existing": false,
+      "experimental": false
+    },
+    "expenses_inr": {
+      "room": 40000,
+      "doctor_fees": 80000,
+      "medicines_diagnostics": 150000,
+      "pre_hospitalization": 5000,
+      "post_hospitalization": 10000,
+      "ambulance": 1000
+    },
+    "documents": ["claim_form", "discharge_summary", "itemized_bill", "doctor_prescription"],
+    "task": "Determine whether total knee replacement is covered when claim occurs within 10 months of policy inception."
+  },
+  {
+    "case_id": "SYNTH-002",
+    "policy_id": "USGIC-CSC-2017-2018",
+    "policy_start_date": "2024-01-01",
+    "claim_date": "2026-08-01",
+    "sum_insured_inr": 500000,
+    "continuous_coverage_months": 31,
+    "prior_insurer_continuous_years": 0,
+    "patient": { "age": 42 },
+    "hospital": { "name": "Local Healthcare Clinic", "network_provider": false },
+    "treatment": {
+      "type": "inpatient",
+      "admission_hours": 72,
+      "diagnosis": "Acute gastroenteritis",
+      "procedure": "IV Fluids & Medical Management",
+      "pre_existing": false,
+      "experimental": false
+    },
+    "expenses_inr": {
+      "room": 12000,
+      "doctor_fees": 15000,
+      "medicines_diagnostics": 25000,
+      "pre_hospitalization": 0,
+      "post_hospitalization": 0,
+      "ambulance": 0
+    },
+    "documents": ["claim_form", "itemized_bill"],
+    "evidence_context": {
+      "hospital_registered": null,
+      "hospital_minimum_criteria_documented": false
+    },
+    "task": "Assess claim admissibility when non-network clinic registration and bed count criteria are unverified."
+  },
+  {
+    "case_id": "SYNTH-003",
+    "policy_id": "USGIC-CSC-2017-2018",
+    "policy_start_date": "2024-01-01",
+    "claim_date": "2026-07-15",
+    "sum_insured_inr": 500000,
+    "continuous_coverage_months": 30,
+    "prior_insurer_continuous_years": 0,
+    "patient": { "age": 50 },
+    "hospital": { "name": "Home Healthcare Care", "network_provider": false },
+    "treatment": {
+      "type": "domiciliary",
+      "admission_hours": 0,
+      "diagnosis": "Acute Bronchitis",
+      "procedure": "Domiciliary Respiratory Care",
+      "pre_existing": false,
+      "hospital_room_unavailable": true,
+      "experimental": false
+    },
+    "expenses_inr": {
+      "room": 0,
+      "doctor_fees": 20000,
+      "medicines_diagnostics": 30000,
+      "pre_hospitalization": 0,
+      "post_hospitalization": 0,
+      "ambulance": 0
+    },
+    "documents": ["claim_form", "doctor_certificate", "itemized_bill"],
+    "task": "Evaluate whether domiciliary treatment for Bronchitis is covered or excluded under policy terms."
+  },
+  {
+    "case_id": "SYNTH-004",
+    "policy_id": "USGIC-CSC-2017-2018",
+    "policy_start_date": "2024-01-01",
+    "claim_date": "2026-09-01",
+    "sum_insured_inr": 1000000,
+    "continuous_coverage_months": 32,
+    "prior_insurer_continuous_years": 0,
+    "patient": { "age": 49 },
+    "hospital": { "name": "Metropolitan Surgery Hospital", "network_provider": true },
+    "treatment": {
+      "type": "inpatient",
+      "admission_hours": 96,
+      "diagnosis": "Abdominal Surgery",
+      "procedure": "Laparotomy",
+      "pre_existing": false,
+      "experimental": false
+    },
+    "expenses_inr": {
+      "room": 80000,
+      "doctor_fees": 250000,
+      "medicines_diagnostics": 400000,
+      "pre_hospitalization": 10000,
+      "post_hospitalization": 15000,
+      "ambulance": 1000
+    },
+    "documents": ["claim_form"],
+    "evidence_context": {
+      "medical_necessity_confirmed": null
+    },
+    "task": "Assess claim when critical discharge summary, medical prescriptions, and itemized bills are absent."
+  },
+  {
+    "case_id": "SYNTH-005",
+    "policy_id": "USGIC-CSC-2017-2018",
+    "policy_start_date": "2024-01-01",
+    "claim_date": "2026-08-20",
+    "sum_insured_inr": 1000000,
+    "continuous_coverage_months": 31,
+    "prior_insurer_continuous_years": 0,
+    "patient": { "age": 60 },
+    "hospital": { "name": "Super Specialty Health Institute", "network_provider": true },
+    "treatment": {
+      "type": "inpatient",
+      "admission_hours": 120,
+      "diagnosis": "Severe Cardiac Condition",
+      "procedure": "Open Heart Surgery",
+      "pre_existing": false,
+      "experimental": false
+    },
+    "expenses_inr": {
+      "room": 150000,
+      "doctor_fees": 350000,
+      "medicines_diagnostics": 300000,
+      "pre_hospitalization": 8000,
+      "post_hospitalization": 12000,
+      "ambulance": 1500
+    },
+    "documents": ["claim_form", "discharge_summary", "itemized_bill", "doctor_prescription"],
+    "task": "Assess high-cost surgical claim subject to ICU room rent cap (2% SI/day) and surgeon fee cap (25% SI)."
+  }
+]

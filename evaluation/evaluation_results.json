@@ -1,0 +1,164 @@
+{
+  "summary": {
+    "total_cases": 17,
+    "decision_accuracy_pct": 100.0,
+    "citation_grounding_pct": 100.0,
+    "abstention_accuracy_pct": 100.0,
+    "evaluated_at": "2026-09-16 07:49:36"
+  },
+  "case_results": [
+    {
+      "case_id": "PUB-001",
+      "expected": "ADMISSIBLE_WITH_LIMITS",
+      "predicted": "ADMISSIBLE_WITH_LIMITS",
+      "match": "MATCH",
+      "confidence": 1.0,
+      "citations_count": 1,
+      "latency_ms": 11850
+    },
+    {
+      "case_id": "PUB-002",
+      "expected": "NOT_ADMISSIBLE",
+      "predicted": "NOT_ADMISSIBLE",
+      "match": "MATCH",
+      "confidence": 1.0,
+      "citations_count": 1,
+      "latency_ms": 1974
+    },
+    {
+      "case_id": "PUB-003",
+      "expected": "NOT_ADMISSIBLE",
+      "predicted": "NOT_ADMISSIBLE",
+      "match": "MATCH",
+      "confidence": 1.0,
+      "citations_count": 1,
+      "latency_ms": 1972
+    },
+    {
+      "case_id": "PUB-004",
+      "expected": "ADMISSIBLE_WITH_LIMITS",
+      "predicted": "ADMISSIBLE_WITH_LIMITS",
+      "match": "MATCH",
+      "confidence": 1.0,
+      "citations_count": 1,
+      "latency_ms": 1961
+    },
+    {
+      "case_id": "PUB-005",
+      "expected": "ADMISSIBLE",
+      "predicted": "ADMISSIBLE",
+      "match": "MATCH",
+      "confidence": 1.0,
+      "citations_count": 1,
+      "latency_ms": 1941
+    },
+    {
+      "case_id": "PUB-006",
+      "expected": "NEEDS_REVIEW",
+      "predicted": "NEEDS_REVIEW",
+      "match": "MATCH",
+      "confidence": 0.8,
+      "citations_count": 1,
+      "latency_ms": 1954
+    },
+    {
+      "case_id": "PUB-007",
+      "expected": "ADMISSIBLE_WITH_LIMITS",
+      "predicted": "ADMISSIBLE_WITH_LIMITS",
+      "match": "MATCH",
+      "confidence": 1.0,
+      "citations_count": 1,
+      "latency_ms": 1991
+    },
+    {
+      "case_id": "PUB-008",
+      "expected": "NOT_ADMISSIBLE",
+      "predicted": "NOT_ADMISSIBLE",
+      "match": "MATCH",
+      "confidence": 1.0,
+      "citations_count": 1,
+      "latency_ms": 1934
+    },
+    {
+      "case_id": "PUB-009",
+      "expected": "ADMISSIBLE",
+      "predicted": "ADMISSIBLE",
+      "match": "MATCH",
+      "confidence": 1.0,
+      "citations_count": 1,
+      "latency_ms": 1930
+    },
+    {
+      "case_id": "PUB-010",
+      "expected": "ADMISSIBLE",
+      "predicted": "ADMISSIBLE",
+      "match": "MATCH",
+      "confidence": 1.0,
+      "citations_count": 1,
+      "latency_ms": 1920
+    },
+    {
+      "case_id": "PUB-011",
+      "expected": "NEEDS_REVIEW",
+      "predicted": "NEEDS_REVIEW",
+      "match": "MATCH",
+      "confidence": 0.8,
+      "citations_count": 1,
+      "latency_ms": 1903
+    },
+    {
+      "case_id": "PUB-012",
+      "expected": "NOT_ADMISSIBLE",
+      "predicted": "NOT_ADMISSIBLE",
+      "match": "MATCH",
+      "confidence": 1.0,
+      "citations_count": 1,
+      "latency_ms": 1954
+    },
+    {
+      "case_id": "SYNTH-001",
+      "expected": "NOT_ADMISSIBLE",
+      "predicted": "NOT_ADMISSIBLE",
+      "match": "MATCH",
+      "confidence": 1.0,
+      "citations_count": 1,
+      "latency_ms": 1981
+    },
+    {
+      "case_id": "SYNTH-002",
+      "expected": "NEEDS_REVIEW",
+      "predicted": "NEEDS_REVIEW",
+      "match": "MATCH",
+      "confidence": 0.8,
+      "citations_count": 1,
+      "latency_ms": 1953
+    },
+    {
+      "case_id": "SYNTH-003",
+      "expected": "NOT_ADMISSIBLE",
+      "predicted": "NOT_ADMISSIBLE",
+      "match": "MATCH",
+      "confidence": 1.0,
+      "citations_count": 1,
+      "latency_ms": 1965
+    },
+    {
+      "case_id": "SYNTH-004",
+      "expected": "NEEDS_REVIEW",
+      "predicted": "NEEDS_REVIEW",
+      "match": "MATCH",
+      "confidence": 0.8,
+      "citations_count": 1,
+      "latency_ms": 1952
+    },
+    {
+      "case_id": "SYNTH-005",
+      "expected": "ADMISSIBLE_WITH_LIMITS",
+      "predicted": "ADMISSIBLE_WITH_LIMITS",
+      "match": "MATCH",
+      "confidence": 1.0,
+      "citations_count": 1,
+      "latency_ms": 1945
+    }
+  ]
+}
