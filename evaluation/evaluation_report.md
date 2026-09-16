@@ -5,7 +5,8 @@
 The **Policy-Aware Multi-Agent RAG Claim Decision Engine** was benchmarked against **17 health insurance claim cases** (12 public test cases from the Aptino dataset + 5 synthetic candidate test cases). 
 
 ### Key Performance Metrics
-- **Decision Accuracy**: **100.0%** (17 / 17 cases correctly adjudicated)
+- **Decision Accuracy**: Decision accuracy reported in this document was produced by `evaluation/evaluate.py` using the supplied benchmark dataset and the additional synthetic evaluation cases included in this repository.
+
 - **Citation Grounding Rate**: **100.0%** (Every material decision claim grounded in source PDF page & chunk ID)
 - **Abstention Accuracy**: **100.0%** (4 / 4 incomplete/ambiguous evidence cases correctly yielded `NEEDS_REVIEW`)
 - **Average Adjudication Latency**: **~120 ms** (Deterministic local fallback pipeline)
