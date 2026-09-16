@@ -1,9 +1,15 @@
-
 # Policy-Aware Multi-Agent RAG Claim Decision Engine
 
-An enterprise-grade, evidence-grounded health insurance claim adjudication engine adhering strictly to the **Aptino AI Engineer Assignment Specifications**.
+An evidence-grounded health insurance claim adjudication engine built for the **Aptino AI Engineer Assignment**.
 
-The system utilizes a **LangGraph multi-agent architecture**, **Hybrid RAG** (Dense ChromaDB + Sparse BM25 + Reciprocal Rank Fusion + Cross-Encoder Reranking), automated **citation validation auditing**, and strict **abstention mechanisms** (`NEEDS_REVIEW` / `INSUFFICIENT_EVIDENCE`).
+The system uses a **LangGraph multi-agent architecture**, policy-document retrieval, evidence-grounded decision making, citation validation, and explicit abstention mechanisms such as `NEEDS_REVIEW` and `INSUFFICIENT_EVIDENCE`.
+
+### 🌐 Live Demo
+
+* **Streamlit Dashboard:** https://aptino-claim-engine.streamlit.app/
+* **FastAPI Backend:** https://aptino-claim-engine-api.onrender.com/
+* **API Documentation:** https://aptino-claim-engine-api.onrender.com/docs
+* **GitHub Repository:** https://github.com/Tajiya3030/aptino-policy-aware-multi-agent-rag-claim-engine
 
 ---
 
@@ -11,19 +17,20 @@ The system utilizes a **LangGraph multi-agent architecture**, **Hybrid RAG** (De
 
 ```mermaid
 flowchart TD
+
     A[Claim JSON] --> B[FastAPI /analyze]
 
     B --> C[Case Analysis Agent]
 
     C --> D[Policy Evidence Agent]
 
-    D --> E[Hybrid Retrieval]
+    D --> E[Policy Retrieval]
 
-    E --> E1[Dense Retrieval - ChromaDB]
-    E --> E2[BM25 Retrieval]
-    E1 --> F[RRF Fusion]
-    E2 --> F
-    F --> G[Cross Encoder Reranker]
+    E --> E1[BM25 Sparse Retrieval]
+
+    E1 --> F[Candidate Fusion / Ranking]
+
+    F --> G[Lightweight Reranker]
 
     G --> H[Coverage & Exclusion Agent]
 
@@ -33,15 +40,16 @@ flowchart TD
 
     J -->|PASS| K[Structured JSON Response]
 
-    J -->|Unsupported Claim| D
+    J -->|FAIL / Insufficient Evidence| D
 
     K --> L[Streamlit Dashboard]
 ```
 
-### LangGraph Shared State Diagram
+### LangGraph Shared State
 
 ```mermaid
 stateDiagram-v2
+
     [*] --> CaseAnalysis
 
     CaseAnalysis --> PolicyEvidence
@@ -57,186 +65,447 @@ stateDiagram-v2
     Validation --> PolicyEvidence : FAIL / Retry
 ```
 
+The workflow separates claim analysis, policy evidence retrieval, coverage evaluation, decision synthesis, and validation into distinct agents.
+
+---
+
+## 🤖 Multi-Agent Workflow
+
+### 1. CaseAnalysisAgent
+
+Extracts relevant claim facts and maps them to decision dimensions such as:
+
+* Coverage
+* Exclusions
+* Policy limits
+* Waiting periods
+* Required evidence
+
+### 2. PolicyEvidenceAgent
+
+Executes targeted policy retrieval queries against the supplied insurance policy and identifies relevant clauses.
+
+### 3. CoverageExclusionAgent
+
+Evaluates whether the treatment is covered and applies relevant exclusions, waiting periods, and policy conditions.
+
+### 4. DecisionAgent
+
+Synthesizes the retrieved evidence and produces a structured adjudication decision.
+
+Possible decisions include:
+
+```text
+ADMISSIBLE
+ADMISSIBLE_WITH_LIMITS
+NOT_ADMISSIBLE
+NEEDS_REVIEW
+INSUFFICIENT_EVIDENCE
+```
+
+### 5. ValidationAgent
+
+Performs an evidence-grounding audit to check whether generated claims are supported by retrieved policy evidence.
+
+Unsupported claims can trigger another evidence-retrieval cycle rather than being silently accepted.
+
+---
+
+## 🔎 Retrieval Architecture
+
+The original design explored a hybrid dense + sparse retrieval pipeline.
+
+For the **memory-constrained cloud deployment**, the production backend uses a lightweight retrieval configuration:
+
+```text
+Policy PDF
+    ↓
+PDF Extraction
+    ↓
+Hierarchical Policy Chunking
+    ↓
+BM25 Retrieval
+    ↓
+Candidate Ranking
+    ↓
+Lightweight Keyword/RRF-Based Reranking
+    ↓
+Policy Evidence
+```
+
+### Why the deployed version uses lightweight retrieval
+
+The Render free deployment provides a constrained memory environment. Loading large PyTorch/SentenceTransformer/Cross-Encoder dependencies caused excessive memory consumption.
+
+The deployed implementation therefore removes:
+
+* ChromaDB
+* SentenceTransformer model loading
+* CrossEncoder model loading
+* Large PyTorch/CUDA dependencies
+
+and uses:
+
+* `rank_bm25`
+* CPU-only Python components
+* Lightweight ranking heuristics
+
+This allows the complete FastAPI adjudication pipeline to run successfully on the deployed low-memory instance.
+
 ---
 
 ## 🛠️ Technology Stack
 
-- **Agent Orchestration**: LangGraph, Pydantic, TypedDict shared state.
-- **Dense Vector Search**: ChromaDB, `sentence-transformers/all-MiniLM-L6-v2`.
-- **Sparse Lexical Search**: `rank_bm25` (BM25Okapi).
-- **Hybrid Fusion & Reranking**: Reciprocal Rank Fusion (RRF: $\text{score} = \sum \frac{1}{60 + \text{rank}}$), `cross-encoder/ms-marco-MiniLM-L-6-v2`.
-- **LLM Provider**: Gemini 2.5 Flash via modern `google-genai` SDK with deterministic rule-grounded offline fallback.
-- **Backend API**: FastAPI, Uvicorn, Pydantic settings.
-- **Frontend UI**: Streamlit.
-- **Testing & Benchmarking**: Pytest, PyPDF text parser.
+| Component           | Technology                              |
+| ------------------- | --------------------------------------- |
+| Agent orchestration | LangGraph                               |
+| Shared state        | Typed state / Pydantic                  |
+| Policy parsing      | PyPDF                                   |
+| Sparse retrieval    | BM25Okapi                               |
+| Ranking             | Lightweight RRF/keyword-overlap ranking |
+| LLM                 | Gemini via `google-genai`               |
+| Backend             | FastAPI + Uvicorn                       |
+| Frontend            | Streamlit                               |
+| Validation          | Evidence/citation audit                 |
+| Testing             | Pytest                                  |
+| Backend deployment  | Render                                  |
+| Frontend deployment | Streamlit Cloud                         |
 
 ---
 
 ## 📁 Repository Structure
 
-```
+```text
 aptino-policy-aware-multi-agent-rag-claim-engine/
+
 │
-├── README.md                  # Main submission documentation
-├── ARCHITECTURE.md            # 1-2 page design note
-├── requirements.txt           # Python package dependencies
-├── .env.example               # Environment variables template
-├── Dockerfile                 # Container build definition
-├── render.yaml                # Render deployment specification
+├── README.md
+├── ARCHITECTURE.md
+├── requirements.txt
+├── .env.example
+├── Dockerfile
+├── render.yaml
 │
-├── backend/                   # FastAPI REST API (/analyze, /health)
-├── agents/                    # LangGraph 5-agent state machine
-├── rag/                       # Dynamic PDF ingestion, hybrid RAG & reranker
-├── frontend/                  # Streamlit web dashboard
-├── evaluation/                # Benchmark harness (17 test cases & report)
-├── deployment/                # Multi-platform deployment blueprints
-├── tests/                     # Pytest suite (test_rag, test_agents, test_validation, test_api)
-├── assets/                    # Dashboard & API UI screenshots
-└── data/                      # Policy PDF, public test cases & schemas
+├── backend/
+│   └── FastAPI REST API
+│
+├── agents/
+│   └── LangGraph multi-agent workflow
+│
+├── rag/
+│   ├── PDF ingestion
+│   ├── policy chunking
+│   ├── BM25 retrieval
+│   ├── hybrid retrieval interface
+│   └── lightweight reranking
+│
+├── frontend/
+│   └── Streamlit dashboard
+│
+├── evaluation/
+│   └── benchmark harness and reports
+│
+├── deployment/
+│   ├── Dockerfile
+│   └── deployment requirements
+│
+├── tests/
+│   ├── test_rag
+│   ├── test_agents
+│   ├── test_validation
+│   └── test_api
+│
+├── assets/
+│   └── dashboard/API screenshots
+│
+└── data/
+    ├── policy PDF
+    ├── public test cases
+    └── schemas
 ```
 
 ---
 
-## 📸 Streamlit Dashboard & API Visuals
+## 📸 Dashboard & API
 
-### 1. Interactive Decision Dashboard
-![Streamlit Dashboard](assets/dashboard.png)
+### Interactive Decision Dashboard
 
-### 2. Inspectable Policy Citations
-![Policy Citations](assets/citations.png)
+The Streamlit application provides:
 
-### 3. Agent Execution Trace (No Chain-of-Thought)
-![Execution Trace](assets/execution_trace.png)
+* Claim selection
+* Adjudication decision
+* Confidence score
+* Key findings
+* Applicable policy limits
+* Financial deductions
+* Inspectable policy citations
+* Retrieval metadata
+* Agent execution trace
 
-### 4. FastAPI Interactive Swagger Documentation
-![FastAPI Swagger UI](assets/swagger_ui.png)
+### Inspectable Policy Citations
+
+Every supported policy finding can expose:
+
+```text
+Claim
+Source PDF
+Page
+Section
+Chunk ID
+```
+
+This makes the decision traceable back to the supplied policy document.
+
+### Agent Execution Trace
+
+The UI exposes an execution trace without exposing private model chain-of-thought.
+
+Example:
+
+```text
+CaseAnalysisAgent
+        ↓
+PolicyEvidenceAgent
+        ↓
+CoverageExclusionAgent
+        ↓
+DecisionAgent
+        ↓
+ValidationAgent
+```
 
 ---
 
-## 📄 Exact Machine-Readable JSON Response Contract
+## 📄 Example JSON Response
 
 ```json
 {
   "case_id": "PUB-001",
   "decision": "ADMISSIBLE_WITH_LIMITS",
-  "confidence": 0.89,
+  "confidence": 1.0,
   "key_findings": [
-    "Treatment covered after waiting period."
+    "Hospitalization treatment is covered subject to policy category sublimits and room rent caps."
   ],
   "applicable_limits": [
-    "Room rent capped under policy."
+    "Room Rent limit applied: Room rent sublimit of 1.0% SI/day (Rs. 5000/day for 4 days) (Deduction: INR 10000)",
+    "Ambulance limit applied: Ambulance charges capped at Rs. 1000 (Deduction: INR 200)"
   ],
   "missing_evidence": [],
   "citations": [
     {
-      "claim": "Room rent subject to daily limit.",
+      "claim": "Room rent and hospital charges subject to daily sub-limits (1% normal / 2% ICU) and fee caps.",
       "source": "USGIC-CSCIndividualHealthInsurance_2017-2018.pdf",
       "page": 7,
-      "section": "Scope of Cover",
-      "chunk_id": "CH-SCOPE-ROOM-001"
+      "section": "SCOPE OF COVER & LIMITS",
+      "chunk_id": "CH-P07-01"
     }
   ],
   "retrieval_metadata": {
-    "dense_hits": 10,
-    "bm25_hits": 8,
-    "rrf_candidates": 12,
-    "reranked_top_k": 5,
-    "top_score": 0.94
+    "dense_hits": 0,
+    "bm25_hits": 70,
+    "rrf_candidates": 70,
+    "reranked_top_k": 8,
+    "top_score": 1.4195
   },
   "validation": {
     "status": "PASS",
     "unsupported_claims": []
-  },
-  "trace": [
-    {
-      "agent": "PolicyEvidenceAgent",
-      "action": "Hybrid Retrieval",
-      "retrieved_chunks": 8,
-      "reranked_chunks": 4,
-      "latency_ms": 192
-    }
-  ]
+  }
 }
+```
+
+---
+
+## 🧪 Example Deployment Result
+
+For the public `PUB-001` test case, the deployed application produced:
+
+```text
+Decision: ADMISSIBLE_WITH_LIMITS
+Confidence: 100%
+Validation: PASS
+Payable: INR 153000
+```
+
+### Applied limits
+
+```text
+Room Rent
+Policy limit: ₹5,000/day × 4 days
+Claimed: ₹30,000
+Deduction: ₹10,000
+
+Ambulance
+Policy limit: ₹1,000
+Claimed: ₹1,200
+Deduction: ₹200
+```
+
+### Retrieved evidence
+
+```text
+BM25 chunks retrieved: 70
+Chunks reranked: 8
+
+Source:
+USGIC-CSCIndividualHealthInsurance_2017-2018.pdf
+
+Page:
+7
+
+Section:
+SCOPE OF COVER & LIMITS
+
+Chunk:
+CH-P07-01
 ```
 
 ---
 
 ## 🎯 Confidence Estimation
 
-The confidence score is derived from multiple observable signals rather than an arbitrary LLM value.
+The confidence value is an **evidence-grounded heuristic**, not a calibrated probability.
 
-| Signal | Contribution | Description |
-|---|---|---|
-| **Cross-encoder reranker score** | Primary retrieval confidence | Semantic and lexical match strength |
-| **Number of supporting policy clauses** | Evidence strength | Quantity of relevant clauses retrieved |
-| **Validation status** | `PASS` increases confidence | Independent citation audit outcome |
-| **Missing evidence** | Reduces confidence | Triggers penalty when fields/docs are absent |
-| **Contradictory clauses** | Reduces confidence | Penalizes conflicting policy provisions |
+It considers observable signals including:
 
-If evidence is insufficient, confidence is intentionally reduced and the decision may become `NEEDS_REVIEW`.
+| Signal                     | Effect                   |
+| -------------------------- | ------------------------ |
+| Retrieval/ranking strength | Supports confidence      |
+| Supporting policy clauses  | Supports confidence      |
+| Validation status          | PASS supports confidence |
+| Missing evidence           | Reduces confidence       |
+| Contradictory clauses      | Reduces confidence       |
+
+When evidence is insufficient, the system can reduce confidence and route the case to `NEEDS_REVIEW` or `INSUFFICIENT_EVIDENCE`.
 
 ---
 
-## 📊 Benchmark Evaluation Results
+## 📊 Benchmark Evaluation
 
-Evaluated across **17 claim cases** (12 public cases + 5 synthetic candidate cases):
+The repository contains a benchmark/evaluation workflow for public and synthetic claim cases.
 
-- **Decision Accuracy**: **100.0%** (17/17 cases match ground truth)
-- **Citation Grounding Rate**: **100.0%** (0 hallucinated citations)
-- **Abstention Accuracy**: **100.0%** (4/4 incomplete evidence cases correctly returned `NEEDS_REVIEW`)
+Run:
 
-Run evaluation end-to-end:
 ```bash
 python -m evaluation.evaluate
 ```
 
-Full report: [evaluation_report.md](evaluation/evaluation_report.md).
+The evaluation report is available at:
+
+```text
+evaluation/evaluation_report.md
+```
+
+> **Note:** Benchmark metrics should be interpreted as results on the repository's defined test corpus and should not be treated as evidence of real-world insurance adjudication accuracy.
 
 ---
 
-## ⚡ Setup & Local Execution
+## ⚡ Local Setup
 
-### 1. Clone & Install Dependencies
+### 1. Clone the Repository
+
 ```bash
-git clone https://github.com/your-username/aptino-policy-aware-multi-agent-rag-claim-engine.git
+git clone https://github.com/Tajiya3030/aptino-policy-aware-multi-agent-rag-claim-engine.git
+
 cd aptino-policy-aware-multi-agent-rag-claim-engine
+```
+
+### 2. Install Dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-### 2. Run Test Suite
+### 3. Configure Environment Variables
+
+Copy:
+
+```text
+.env.example
+```
+
+and configure the required Gemini API key in your local environment.
+
+Do **not** commit API keys to GitHub.
+
+### 4. Run Tests
+
 ```bash
 pytest tests/ -v
 ```
 
-### 3. Launch Backend API
+### 5. Launch the Backend
+
 ```bash
 uvicorn backend.main:app --reload --port 8000
 ```
-- GET `http://localhost:8000/health`
-- POST `http://localhost:8000/analyze`
 
-### 4. Launch Streamlit Web UI
+API endpoints:
+
+```text
+GET  /health
+POST /analyze
+```
+
+Interactive API documentation:
+
+```text
+http://localhost:8000/docs
+```
+
+### 6. Launch Streamlit
+
 ```bash
 streamlit run frontend/app.py
 ```
 
 ---
 
-## 🌐 Live Submission URLs
+## 🌐 Live Deployment
 
-| Deliverable | Platform | Link |
-|---|---|---|
-| **GitHub Repository** | GitHub | `https://github.com/your-username/aptino-policy-aware-multi-agent-rag-claim-engine` |
-| **Live Frontend UI** | Streamlit Cloud | `https://aptino-claim-engine.streamlit.app` |
-| **Live Backend API** | Render | `https://aptino-claim-engine.onrender.com` |
-| **Design Note** | Markdown | `ARCHITECTURE.md` |
+| Deliverable           | Platform        | Link                                                                           |
+| --------------------- | --------------- | ------------------------------------------------------------------------------ |
+| **GitHub Repository** | GitHub          | https://github.com/Tajiya3030/aptino-policy-aware-multi-agent-rag-claim-engine |
+| **Live Frontend**     | Streamlit Cloud | https://aptino-claim-engine.streamlit.app/                                     |
+| **Live Backend**      | Render          | https://aptino-claim-engine-api.onrender.com/                                  |
+| **API Documentation** | FastAPI Swagger | https://aptino-claim-engine-api.onrender.com/docs                              |
+| **Design Note**       | Repository      | `ARCHITECTURE.md`                                                              |
 
 ---
 
 ## ⚠️ Known Limitations
 
-1. **Authoritative PDF Scope**: The engine only reasons over the supplied policy PDF (*USGIC - CSC Individual Health Insurance*) and intentionally ignores external medical or insurance knowledge.
-2. **Text Extraction Dependency**: OCR and text extraction quality depend on the supplied PDF text structure.
-3. **Heuristic Confidence**: Confidence is evidence-grounded and heuristic rather than a calibrated probability.
-4. **Deterministic Fallback vs LLM**: Deterministic fallback provides reproducible evaluation offline but is less flexible than live Gemini 2.5 Flash reasoning.
-5. **Abstention Policy**: The system strictly abstains (`NEEDS_REVIEW`) whenever required policy evidence or hospital registration criteria is unavailable.
+1. **Policy Scope**
+   The engine reasons over the supplied policy PDF and does not independently establish real-world insurance coverage.
+
+2. **Document Extraction**
+   OCR and PDF text extraction quality can affect retrieval quality when source documents contain complex layouts or scanned pages.
+
+3. **Heuristic Confidence**
+   The confidence value is an evidence-based heuristic and should not be interpreted as a calibrated probability.
+
+4. **Lightweight Retrieval Deployment**
+   The deployed Render configuration uses BM25 and lightweight ranking instead of the larger dense-retrieval stack because of the available memory constraints.
+
+5. **LLM Dependency**
+   Live Gemini reasoning depends on API availability and configured credentials. A deterministic fallback is available for selected rule-based scenarios.
+
+6. **Human Review**
+   Cases with insufficient or contradictory evidence can be routed to `NEEDS_REVIEW`. The system is designed as a decision-support engine rather than a replacement for authorized claims professionals.
+
+---
+
+## 🔐 Evidence-Grounded Design Principles
+
+The engine follows several core principles:
+
+* **Policy-first reasoning**
+* **Evidence before decision**
+* **Inspectable citations**
+* **Explicit financial limits**
+* **Validation before final output**
+* **Abstention when evidence is insufficient**
+* **No unsupported policy claims**
+* **No private chain-of-thought exposure**
+
+The goal is to make claim decisions **traceable, auditable, and grounded in the supplied policy evidence**.
