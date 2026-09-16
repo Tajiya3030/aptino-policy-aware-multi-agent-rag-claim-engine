@@ -113,7 +113,10 @@ else:
 # API Connection settings
 st.sidebar.markdown("---")
 st.sidebar.subheader("Engine Endpoint Config")
-api_url = st.sidebar.text_input("Backend API Base URL", "http://localhost:8000")
+api_url = st.sidebar.text_input(
+    "Backend API Base URL",
+    "https://aptino-claim-engine-api.onrender.com"
+)
 
 if selected_case:
     col1, col2 = st.columns([1, 1])
@@ -128,7 +131,7 @@ if selected_case:
             with st.spinner("Executing LangGraph Multi-Agent RAG Pipeline..."):
                 try:
                     # Invoke FastAPI backend endpoint
-                    resp = requests.post(f"{api_url}/analyze", json=selected_case, timeout=30)
+                    resp = requests.post(f"{api_url}/analyze", json=selected_case, timeout=60)
                     if resp.status_code == 200:
                         result = resp.json()
                         st.session_state["last_result"] = result
@@ -136,11 +139,7 @@ if selected_case:
                         st.error(f"API Error ({resp.status_code}): {resp.text}")
                 except Exception as ex:
                     # Fallback to direct local workflow execution if API server not started
-                    st.info("Direct Local Execution Fallback...")
-                    from agents.workflow import ClaimAdjudicationWorkflow
-                    wf = ClaimAdjudicationWorkflow()
-                    result = wf.run(selected_case)
-                    st.session_state["last_result"] = result
+                    st.error(f"Could not connect to backend API: {ex}")
 
 if "last_result" in st.session_state:
     res = st.session_state["last_result"]
